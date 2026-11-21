@@ -1,4 +1,4 @@
-# QuadCommander Releases
+# <img src="app-icon.png" width="40" height="40" alt="QuadCommander Icon" style="vertical-align: middle; margin-right: 8px;" /> QuadCommander Releases
 
 QuadCommander 공식 설치 파일 및 릴리즈 배포 저장소입니다.
 

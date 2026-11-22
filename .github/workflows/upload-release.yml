@@ -35,9 +35,18 @@ jobs:
 
           echo "Target tag: $TAG"
 
-          if [[ -f "RELEASE_NOTES.md" ]]; then
-            echo "Updating release notes..."
-            gh release edit "$TAG" --title "QuadCommander $TAG" --notes-file RELEASE_NOTES.md || true
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            if [[ -f "RELEASE_NOTES.md" ]]; then
+              echo "Updating release notes..."
+              gh release edit "$TAG" --title "QuadCommander $TAG" --notes-file RELEASE_NOTES.md || true
+            fi
+          else
+            echo "Creating release $TAG..."
+            if [[ -f "RELEASE_NOTES.md" ]]; then
+              gh release create "$TAG" --title "QuadCommander $TAG" --notes-file RELEASE_NOTES.md
+            else
+              gh release create "$TAG" --title "QuadCommander $TAG" --notes "QuadCommander $TAG"
+            fi
           fi
 
           echo "Uploading binaries to release $TAG..."

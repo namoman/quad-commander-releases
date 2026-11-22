@@ -1,0 +1,50 @@
+name: Upload Release Assets
+
+on:
+  push:
+    branches:
+      - 'release-assets/**'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag'
+        required: true
+        default: 'v0.2.0'
+
+permissions:
+  contents: write
+
+jobs:
+  upload:
+    name: Upload Assets to GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update release notes and upload binary assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME#release-assets/}"
+          if [[ -z "$TAG" || "$TAG" == "main" ]]; then
+            TAG="${{ inputs.tag }}"
+          fi
+          if [[ -z "$TAG" ]]; then
+            TAG="v0.2.0"
+          fi
+
+          echo "Target tag: $TAG"
+
+          if [[ -f "RELEASE_NOTES.md" ]]; then
+            echo "Updating release notes..."
+            gh release edit "$TAG" --title "QuadCommander $TAG" --notes-file RELEASE_NOTES.md || true
+          fi
+
+          echo "Uploading binaries to release $TAG..."
+          if ls binaries/* 1> /dev/null 2>&1; then
+            ls -lh binaries/
+            gh release upload "$TAG" binaries/* --clobber
+          else
+            echo "No binaries found in binaries/ directory."
+            exit 1
+          fi
